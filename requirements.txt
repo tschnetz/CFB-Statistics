@@ -1,0 +1,4 @@
+cfbd~=5.0.21a1
+pandas~=2.2.2
+requests~=2.32.3
+streamlit~=1.38.0
