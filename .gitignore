@@ -1,0 +1,44 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Virtual environment directories
+venv/
+env/
+
+# Logs, databases, and other data
+*.log
+*.sqlite3
+
+# Streamlit cache
+.streamlit/
+
+# Docker files and directories
+*.dockerfile
+.docker/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Google Cloud credentials
+credentials.json
+
+# Ignore PyCharm project settings
+.idea/
+
+# Ignore workspace files
+*.iml
+
+# Ignore logs
+
+# Ignore IntelliJ cache files (PyCharm uses IntelliJ under the hood)
+out/
+
+# Virtual environment (if managed by PyCharm)
+.idea/venv/
+
+# Ignore other temporary files like Python Bytecode
