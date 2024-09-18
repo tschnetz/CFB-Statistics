@@ -7,7 +7,7 @@ import requests
 import streamlit as st
 
 # Initialize global variables
-API_KEY = 'Ao1dR1H1xmnUoF+WIDm0GhR+xJ0lXCqmyw1eTxd3AiXaVd17Z2saTk2PjvwtLWAD'
+API_KEY = st.secrets["cfbd_api_key"]
 headers = {
     'accept': 'application/json',
     'Authorization': f'Bearer {API_KEY}'
