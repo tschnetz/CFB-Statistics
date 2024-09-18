@@ -12,8 +12,12 @@ headers = {
     'accept': 'application/json',
     'Authorization': f'Bearer {API_KEY}'
 }
+st.session_state.headers = headers
 configuration = cfbd.Configuration(access_token=API_KEY)
 st.set_page_config(layout='wide')
+cfbd_logo = "images/cfbd.png"
+st.logo(cfbd_logo)
+st.session_state.team = ''
 
 
 def is_number(s):
@@ -38,8 +42,7 @@ def get_cfbd_data(year, team):
         teams_data = games_api.get_game_team_stats(year=year, team=team)
         games_df = pd.DataFrame([game.to_dict() for game in games])
         coach_data = coaches_api.get_coaches(year=year, team=team)
-        roster_data = teams_api.get_roster(year=year, team=team)
-        return games_df, games_data, team_info, teams_data, coach_data, roster_data
+        return games_df, games_data, team_info, teams_data, coach_data
 
 
 def team_information():
@@ -285,13 +288,18 @@ def select_team_year():
         team_data = json.load(f)
     # Filter teams with classification "fbs" or "fcs"
     filtered_teams = sorted([team['school'] for team in team_data if team['classification'] in ['fbs', 'fcs']])
-    georgia_tech_index = filtered_teams.index('Georgia Tech')
-    team = st.sidebar.selectbox('Select Team Name', options=filtered_teams, index=georgia_tech_index)
+    if st.session_state.team != '':
+        team_index = filtered_teams.index(st.session_state.team)
+    else:
+        team_index = filtered_teams.index('Georgia Tech')
+    team = st.sidebar.selectbox('Select Team Name', options=filtered_teams, index=team_index)
+    st.session_state.team = team
+    st.session_state.year = year
     return team, year
 
 
 team, year = select_team_year()
-games_df, games_data, team_info, teams_data, coach_data, roster_data = get_cfbd_data(year, team)
+games_df, games_data, team_info, teams_data, coach_data = get_cfbd_data(year, team)
 team_color, team_logo = team_information()
 st.markdown(f"""
     <div style='display: flex; align-items: center;'>
