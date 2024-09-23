@@ -1,6 +1,5 @@
 import json
 from datetime import datetime
-
 import cfbd
 import pandas as pd
 import requests
@@ -14,10 +13,16 @@ headers = {
 }
 st.session_state.headers = headers
 configuration = cfbd.Configuration(access_token=API_KEY)
-st.set_page_config(layout='wide')
+st.set_page_config(
+    page_title="CFB Data",
+    page_icon=":football:",
+    layout="wide",
+)
+
 cfbd_logo = "images/cfbd.png"
 st.logo(cfbd_logo)
 st.session_state.team = ''
+st.sidebar.title("CFB Data")
 
 
 def is_number(s):

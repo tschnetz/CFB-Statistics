@@ -1,9 +1,7 @@
 import json
-import datetime
 import streamlit as st
 import pandas as pd
 import requests
-from pyarrow import nulls
 
 headers = st.session_state.headers
 YEAR = 2024
@@ -91,6 +89,21 @@ def get_lines():
     return game_lines
 
 
+def get_media():
+    url = "https://api.collegefootballdata.com/games/media"
+    querystring = {"year": YEAR, "week": week}
+    payload = ""
+    response = requests.request("GET", url, data=payload, headers=headers, params=querystring)
+    media = []
+    for game in response.json():
+        # Get the media outlet for each game
+        media.append({
+            'id': game['id'],
+            'outlet': game['outlet'],
+        })
+    media_df = pd.DataFrame(media)
+    return media_df
+
 def add_logos():
     logos_df = team_information()
     # Merge logos for the home team
@@ -103,7 +116,7 @@ def add_logos():
     return games_with_logos
 
 
-def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, spread):
+def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, spread, outlet):
     return f"""
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div style="text-align: center; font-size: 16px;">{game_date}</div>
@@ -117,7 +130,7 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
             {away_team}<br>{away_score}
         </div>
         <div style="text-align: center; font-size: 14px; margin-top: 5px;">
-        Line (ESPN): {spread}
+            {spread}<br>{outlet}
     </div>
     </div>
     <hr>
@@ -129,9 +142,11 @@ games_df = get_games()
 schedule = clean_games(games_df)
 games_with_logos = add_logos()
 betting_df = get_lines()
+media_df = get_media()
 games_with_betting = games_with_logos.merge(betting_df, on='id', how='left')
-st.title(f"Week {week} CFB Schedule", divider='blue')
-for index, row in games_with_betting.iterrows():
+games_with_media = games_with_betting.merge(media_df, on='id', how='left')
+st.header(f"Week {week} CFB Schedule", divider='blue')
+for index, row in games_with_media.iterrows():
     st.markdown(display_schedule(row['home_team'],
                                  row['home_team_logo'],
                                  row['home_points'],
@@ -139,5 +154,6 @@ for index, row in games_with_betting.iterrows():
                                  row['away_team_logo'],
                                  row['away_points'],
                                  row['start_date'],
-                                 row['spread']),
+                                 row['spread'],
+                                 row['outlet']),
                 unsafe_allow_html=True)
