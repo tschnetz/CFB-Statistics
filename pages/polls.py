@@ -1,3 +1,4 @@
+from datetime import date
 import streamlit as st
 import pandas as pd
 import requests
@@ -24,7 +25,9 @@ def select_week():
     for index, row in weeks_df.iterrows():
         week_str = f"Week {row['week']} ({row['firstGameStart']} - {row['lastGameStart']})"
         selected.append(week_str)
-    selected_week = st.sidebar.selectbox("Select week", selected)
+    current_date = date.today()
+    week_number = current_date.isocalendar()[1] - 35
+    selected_week = st.sidebar.selectbox("Select week", selected, index=week_number)
     week = selected.index(selected_week) + 1
     return week
 
