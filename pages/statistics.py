@@ -34,7 +34,7 @@ def select_team_year():
     with open('team_info.json') as f:
         team_data = json.load(f)
     # Filter teams with classification "fbs" or "fcs"
-    filtered_teams = sorted([team['school'] for team in team_data if team['classification'] in ['fbs', 'fcs']])
+    filtered_teams = sorted([team['school'] for team in team_data if team['classification'] in ['fbs']])
     team_index = filtered_teams.index(st.session_state.team)
     team = st.sidebar.selectbox('Select Team Name', options=filtered_teams, index=team_index)
     st.session_state.team = team
