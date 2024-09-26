@@ -121,13 +121,13 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div style="text-align: center; font-size: 16px;">{game_date}</div>
         <div style="text-align: center;">
-            <img src="{home_team_logo}" width="50"><br>
-            <b>{home_team}</b><br>{home_score}
+            <img src="{away_team_logo}" width="50"><br>
+            {away_team}<br>{away_score}
         </div>
         <div style="text-align: center; font-size: 18px;">vs</div>
         <div style="text-align: center;">
-            <img src="{away_team_logo}" width="50"><br>
-            {away_team}<br>{away_score}
+            <img src="{home_team_logo}" width="50"><br>
+            <b>{home_team}</b><br>{home_score}
         </div>
         <div style="text-align: center; font-size: 14px; margin-top: 5px;">
             {spread}<br>{outlet}
