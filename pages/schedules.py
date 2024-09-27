@@ -69,9 +69,12 @@ def clean_games(games_df):
     # Step 3: Convert the datetime from UTC to Eastern Time
     games_df['start_date'] = games_df['start_date'].dt.tz_convert('US/Eastern')
 
+    # Step 4: Add a new column for the day of the week
+    games_df['day_of_week'] = games_df['start_date'].dt.day_name()
+
     # Step 4: Format the datetime as 'MMM-dd HH:MM AM/PM'
     games_df['start_date'] = games_df['start_date'].dt.strftime('%b-%d %I:%M %p')
-    games_df = games_df[['id', 'start_date', 'home_team', 'home_points', 'home_line_scores', 'away_team', 'away_points']]
+    games_df = games_df[['id', 'start_date', 'day_of_week', 'home_team', 'home_points', 'home_line_scores', 'away_team', 'away_points']]
     return games_df
 
 
@@ -121,10 +124,10 @@ def add_logos():
     return games_with_logos
 
 
-def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, spread, outlet):
+def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, weekday, spread, outlet):
     return f"""
     <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="text-align: center; font-size: 16px;">{game_date}</div>
+        <div style="text-align: center; font-size: 16px;">{weekday}<br>{game_date}</div>
         <div style="text-align: center;">
             <img src="{away_team_logo}" width="50"><br>
             {away_team}<br>{away_score}
@@ -159,6 +162,7 @@ for index, row in games_with_media.iterrows():
                                  row['away_team_logo'],
                                  row['away_points'],
                                  row['start_date'],
+                                 row['day_of_week'],
                                  row['spread'],
                                  row['outlet']),
                 unsafe_allow_html=True)

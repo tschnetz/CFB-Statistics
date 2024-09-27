@@ -201,9 +201,14 @@ def create_coach(coaches_data):
         return full_name
 
 
-def display_results():# Display results for each game
+def highlight_scores(row):
+    home_color = 'background-color: lightgreen' if row['homePoints'] > row['awayPoints'] else ''
+    away_color = 'background-color: lightgreen' if row['awayPoints'] > row['homePoints'] else ''
+    return [home_color, away_color]
+
+
+def display_results(games_df):# Display results for each game
     games_columns = {
-        'seasonType': 'Season',
         'week': 'Week',
         'startDate': st.column_config.DatetimeColumn("Date", format='MM/DD/YY'),
         'homeTeam': 'Home Team',
@@ -215,7 +220,14 @@ def display_results():# Display results for each game
         'attendance': 'Attendance',
     }
     st.markdown("Select a game for game statistics")
-    games_played = st.dataframe(games_df,
+    games_df['startDate'] = pd.to_datetime(games_df['startDate']).dt.strftime('%b-%d %I:%M %p')
+    games_df['homePoints'] = games_df['homePoints'].fillna(0)
+    games_df['awayPoints'] = games_df['awayPoints'].fillna(0)
+    games_df['homePoints'] = games_df['homePoints'].astype(int)
+    games_df['awayPoints'] = games_df['awayPoints'].astype(int)
+    styled_games_df = games_df.style.apply(lambda row: highlight_scores(row), axis=1,
+                                           subset=['homePoints', 'awayPoints'])
+    games_played = st.dataframe(styled_games_df,
                                 column_order=games_columns.keys(),
                                 column_config=games_columns,
                                 height=500,
@@ -325,7 +337,7 @@ if len(team_records_df) == 1:
                 f"Away: {int(team_records_df['Away Wins'].iloc[0])} - {int(team_records_df['Away Losses'].iloc[0])}, "
                 f"Coach: {coach_name}"
                 )
-display_results()
+display_results(games_df)
 
 
 
