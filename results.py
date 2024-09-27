@@ -59,7 +59,9 @@ def team_information():
             # set team_color = color for school = team
             team_color = team_df[team_df['school'] == team]['color'].values[0]
             team_logo = team_df[team_df['school'] == team]['logos'].values[0][0]
-            return team_color, team_logo
+            team_mascot = team_df[team_df['school'] == team]['mascot'].values[0]
+            team_conference = team_df[team_df['school'] == team]['conference'].values[0]
+            return team_color, team_logo, team_mascot, team_conference
 
 
 def get_team_records():
@@ -220,7 +222,7 @@ def display_results(games_df):# Display results for each game
         'attendance': 'Attendance',
     }
     st.markdown("Select a game for game statistics")
-    games_df['startDate'] = pd.to_datetime(games_df['startDate']).dt.strftime('%b-%d %I:%M %p')
+    games_df['startDate'] = pd.to_datetime(games_df['startDate']).dt.strftime('%b %d, %Y')
     games_df['homePoints'] = games_df['homePoints'].fillna(0)
     games_df['awayPoints'] = games_df['awayPoints'].fillna(0)
     games_df['homePoints'] = games_df['homePoints'].astype(int)
@@ -317,11 +319,11 @@ def select_team_year():
 
 team, year = select_team_year()
 games_df, games_data, team_info, teams_data, coach_data = get_cfbd_data(year, team)
-team_color, team_logo = team_information()
+team_color, team_logo, team_mascot, team_conference = team_information()
 st.markdown(f"""
     <div style='display: flex; align-items: center;'>
         <img src='{team_logo}' alt='team logo' style='width:100px; height:auto; margin-right:15px;'>
-        <h1 style='color: {team_color}; margin: 0;'>{team} {year} Results</h1>
+        <h1 style='color: {team_color}; margin: 0;'>{team} {team_mascot} {year} Results</h1>
     </div>
     """, unsafe_allow_html=True)
 st.sidebar.markdown('Statistics per Game available 2004 and later')
@@ -332,7 +334,7 @@ team_stats_df = create_team_stats(teams_data)
 coach_name = create_coach(coach_data)
 if len(team_records_df) == 1:
     st.markdown(f"##### Overall: {int(team_records_df['Total Wins'].iloc[0])} - {int(team_records_df['Total Losses'].iloc[0])}, "
-                f"Conference: {int(team_records_df['Conference Wins'].iloc[0])} - {int(team_records_df['Conference Losses'].iloc[0])}, "
+                f"Conference ({team_conference}): {int(team_records_df['Conference Wins'].iloc[0])} - {int(team_records_df['Conference Losses'].iloc[0])}, "
                 f"Home: {int(team_records_df['Home Wins'].iloc[0])} - {int(team_records_df['Home Losses'].iloc[0])}, "
                 f"Away: {int(team_records_df['Away Wins'].iloc[0])} - {int(team_records_df['Away Losses'].iloc[0])}, "
                 f"Coach: {coach_name}"
