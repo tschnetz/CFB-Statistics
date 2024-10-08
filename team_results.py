@@ -323,8 +323,12 @@ team_color, team_logo, team_mascot, team_conference = team_information()
 st.markdown(f"""
     <div style='display: flex; align-items: center;'>
         <img src='{team_logo}' alt='team logo' style='width:100px; height:auto; margin-right:15px;'>
-        <h1 style='color: {team_color}; margin: 0;'>{team} {team_mascot} {year} Results</h1>
+        <h1 style='color: {team_color}; margin: 0;'>{team} {team_mascot}</h1>
     </div>
+    <div style='display: flex; align-items: center;'>
+            <h3 style='color: {team_color}; margin: 0;'>{year} Results</h3>
+    </div>
+
     """, unsafe_allow_html=True)
 st.sidebar.markdown('Statistics per Game available 2004 and later')
 team_records = get_team_records()

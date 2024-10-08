@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 import requests
 
-from results import stats_df
+from team_results import stats_df
 
 team = st.session_state.team
 year = st.session_state.year
