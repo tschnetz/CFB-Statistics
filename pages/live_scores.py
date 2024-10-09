@@ -24,7 +24,7 @@ def get_scoreboard(conference):
 
 
 def get_conferences():
-    url = "http://api.collegefootballdata.com/conferences"
+    url = "https://api.collegefootballdata.com/conferences"
     return fetch_data_from_api(url)
 
 

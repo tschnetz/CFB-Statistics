@@ -1,16 +1,14 @@
 import json
 from datetime import datetime
-from unicodedata import category
-
 import streamlit as st
 import pandas as pd
 import requests
 
-from team_results import stats_df
 
-team = st.session_state.team
-year = st.session_state.year
+# team = st.session_state.team
+# year = st.session_state.year
 headers = st.session_state.headers
+
 
 def team_information():
     with open('team_info.json', 'r') as file:

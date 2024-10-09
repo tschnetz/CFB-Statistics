@@ -4,8 +4,8 @@ import streamlit as st
 import pandas as pd
 import requests
 
-team = st.session_state.team
-year = st.session_state.year
+# team = st.session_state.team
+# year = st.session_state.year
 headers = st.session_state.headers
 
 def team_information():

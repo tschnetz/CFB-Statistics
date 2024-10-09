@@ -40,7 +40,7 @@ def get_cfbd_data(year, team):
         coaches_api = cfbd.CoachesApi(api_client)
         teams_api = cfbd.TeamsApi(api_client)
         team_info = teams_api.get_teams()
-        with open('team_info.json', 'w') as json_file:
+        with open('team_info.json', 'w', encoding='utf-8') as json_file:
             json.dump([team.to_dict() for team in team_info], json_file)
         games = games_api.get_games(year=year, team=team)
         games_data = games_api.get_game_player_stats(year=year, team=team)
