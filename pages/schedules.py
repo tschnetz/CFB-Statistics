@@ -124,25 +124,34 @@ def add_logos():
     return games_with_logos
 
 
-def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, weekday, spread, outlet):
+def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, weekday,
+                     spread, outlet):
+    # Check if home_score and away_score are NaN and handle accordingly
+    home_score_display = int(home_score) if not pd.isna(home_score) else ""  # Blank if NaN
+    away_score_display = int(away_score) if not pd.isna(away_score) else ""  # Blank if NaN
+
     return f"""
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div style="text-align: center; font-size: 16px;">{weekday}<br>{game_date}</div>
+        <div style="text-align: center; font-size: 18px;">at</div>
         <div style="text-align: center;">
             <img src="{away_team_logo}" width="50"><br>
-            {away_team}<br>{away_score}
+            <b>{away_team}</b><br>
+            <span style="font-size: 30px; font-weight: bold;">{away_score_display}</span>  <!-- Larger score -->
         </div>
         <div style="text-align: center; font-size: 18px;">at</div>
         <div style="text-align: center;">
             <img src="{home_team_logo}" width="50"><br>
-            <b>{home_team}</b><br>{home_score}
+            <b>{home_team}</b><br>
+            <span style="font-size: 30px; font-weight: bold;">{home_score_display}</span>  <!-- Larger score -->
         </div>
         <div style="text-align: center; font-size: 14px; margin-top: 5px;">
             {spread}<br>{outlet}
-    </div>
+        </div>
     </div>
     <hr>
     """
+
 
 # Main body
 week = select_week()

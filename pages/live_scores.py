@@ -110,7 +110,7 @@ def display_scoreboard():
     games_with_logos = add_logos(games_df)
 
     for index, game in games_with_logos.iterrows():
-        if game['status'] != 'scheduled':  # Only display in-progress or finished games
+        if game['status'] == 'in_progress':  # Only display in-progress or finished games
             away_color = game['away_team_color'] or "#ffffff"  # Default to white if no color
             home_color = game['home_team_color'] or "#ffffff"  # Default to white if no color
 
