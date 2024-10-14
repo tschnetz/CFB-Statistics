@@ -2,8 +2,8 @@ from datetime import date
 import streamlit as st
 import pandas as pd
 import requests
+from config_api import headers
 
-headers = st.session_state.headers
 YEAR = 2024
 
 def get_schedule():

@@ -4,12 +4,14 @@ import streamlit.components.v1
 import pandas as pd
 import requests
 import time
+from config_api import headers
+
 
 
 # Helper function to make HTTP requests and handle errors
 def fetch_data_from_api(url, query_params=None):
     try:
-        response = requests.get(url, headers=st.session_state.headers, params=query_params)
+        response = requests.get(url, headers=headers, params=query_params)
         response.raise_for_status()  # Raise an HTTPError for bad responses
         return response.json()
     except requests.exceptions.RequestException as e:

@@ -3,11 +3,7 @@ from datetime import datetime
 import streamlit as st
 import pandas as pd
 import requests
-
-
-# team = st.session_state.team
-# year = st.session_state.year
-headers = st.session_state.headers
+from config_api import headers
 
 
 def team_information():

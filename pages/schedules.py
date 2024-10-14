@@ -1,11 +1,10 @@
 import json
 from datetime import date
-
+from config_api import headers
 import streamlit as st
 import pandas as pd
 import requests
 
-headers = st.session_state.headers
 YEAR = 2024
 
 def team_information():

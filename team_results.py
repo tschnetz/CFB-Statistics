@@ -4,15 +4,10 @@ import cfbd
 import pandas as pd
 import requests
 import streamlit as st
+from config_api import configuration, headers
 
 # Initialize global variables
-API_KEY = st.secrets["cfbd_api_key"]
-headers = {
-    'accept': 'application/json',
-    'Authorization': f'Bearer {API_KEY}'
-}
-st.session_state.headers = headers
-configuration = cfbd.Configuration(access_token=API_KEY)
+
 st.set_page_config(
     page_title="CFB Data",
     page_icon=":football:",

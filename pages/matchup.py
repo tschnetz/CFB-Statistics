@@ -3,8 +3,8 @@ import json
 import pandas as pd
 import requests
 import streamlit as st
+from config_api import headers
 
-headers = st.session_state.headers
 # YEAR = 2024
 st.sidebar.title("CFB Data")
 
