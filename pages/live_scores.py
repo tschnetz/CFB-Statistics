@@ -19,15 +19,10 @@ def fetch_data_from_api(url, query_params=None):
         return None
 
 
-def get_scoreboard(conference):
+def get_scoreboard():
     url = "https://api.collegefootballdata.com/scoreboard"
-    querystring = {"classification": "fbs", "conference": conference}
+    querystring = {"classification": "fbs"}
     return fetch_data_from_api(url, query_params=querystring)
-
-
-def get_conferences():
-    url = "https://api.collegefootballdata.com/conferences"
-    return fetch_data_from_api(url)
 
 
 def team_information():
@@ -56,7 +51,7 @@ def add_logos(games_df):
     return games_with_logos
 
 def create_scoreboard():
-    scoreboard = get_scoreboard(conf_abbrev)
+    scoreboard = get_scoreboard()
     games_list = [
         {
             'home_id': game['homeTeam']['id'],
@@ -116,61 +111,50 @@ def display_scoreboard():
             away_color = game['away_team_color'] or "#ffffff"  # Default to white if no color
             home_color = game['home_team_color'] or "#ffffff"  # Default to white if no color
 
-            # Apply a gradient background for the whole game block using a <div>
+            # Apply a consistent gradient background for the whole game block
             st.components.v1.html(f"""
-                <div style="background: linear-gradient(to right, {away_color}80, transparent, {home_color}80);
-                            border-radius: 20px; padding: 20px; margin-bottom: 20px; font-family: 'Arial', sans-serif;
-                            display: flex; justify-content: space-between; align-items: center; text-align: center;">
-                    <!-- Away team column -->
-                    <div style="flex: 1; text-align: center;">
-                        <div style="display: inline-flex; align-items: center;">
+                <div style="background: linear-gradient(to right, {away_color}50, {home_color}50);
+                            border-radius: 20px; padding: 20px; margin-bottom: 20px; font-family: 'Verdana', sans-serif;
+                            display: flex; justify-content: space-between; align-items: center; 
+                            text-align: center;
+                            width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
+
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div style="display: flex; align-items: center; margin-bottom:   
+ 5px;">
                             {"🏈" if game['possession'] == 'away' else ""} 
                             <img src='{game['away_team_logo']}' width='50' style='margin-left: 10px;'>
                         </div>
-                        <div style="font-size: 18px; font-weight: bold;">{game['away_team']}</div>
-                        <div style="font-size: 24px; font-weight: bold;">{int(game['away_team_score'])}</div>
+                        <div style="font-size: 16px; font-weight: bold; margin-top: 0; overflow: hidden;
+                                    text-overflow: ellipsis; white-space: nowrap; max-width: 130px;">{game['away_team']}</div>
+                        <div style="font-size: 24px; font-weight: bold; margin-top: 0;">{int(game['away_team_score'])}</div>
                     </div>
 
-                    <!-- Game information (center column) -->
-                    <div style="flex: 1; text-align: center;">
-                        <h4 style="font-family: 'Arial', sans-serif; margin: 0;">{int(game['period'])}Q</h4>
+                    <div style="flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <h4 style="font-family: 'Verdana', sans-serif; margin: 0;">{int(game['period'])}Q</h4>
                         <p style="margin: 0;">{format_clock(game['clock'])}</p>
                         <p style="margin: 0;">{game['situation'] or "No situation available"}</p>
                     </div>
 
-                    <!-- Home team column -->
-                    <div style="flex: 1; text-align: center;">
-                        <div style="display: inline-flex; align-items: center;">
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;"> 
+                        <div style="display: flex; align-items: center; margin-bottom:   
+ 5px;">
                             {"🏈" if game['possession'] == 'home' else ""} 
                             <img src='{game['home_team_logo']}' width='50' style='margin-left: 10px;'>
                         </div>
-                        <div style="font-size: 18px; font-weight: bold;">{game['home_team']}</div>
-                        <div style="font-size: 24px; font-weight: bold;">{int(game['home_team_score'])}</div>
+                        <div style="font-size: 16px; font-weight: bold; margin-top: 0; overflow: hidden;
+                                    text-overflow: ellipsis; white-space: nowrap; max-width: 130px;">{game['home_team']}</div>
+                        <div style="font-size: 24px; font-weight: bold; margin-top: 0;">{int(game['home_team_score'])}</div>
                     </div>
                 </div>
             """)
 
-    # Display the last updated time with Arial font applied
+    # Display the last updated time with Verdana font applied
     last_updated = time.strftime("%I:%M %p")  # e.g., "03:45 PM"
     st.markdown(
         f"<div style='text-align: center; font-size: 12px; color: #888;'><i>Last updated: {last_updated}</i></div>",
         unsafe_allow_html=True)
 
 
-# Main logic for displaying conferences and scoreboard
-conferences = get_conferences()
-
-# Filter conferences (id <= 50 and classification == 'fbs')
-filtered_conferences = [conf for conf in conferences if conf['id'] <= 50 and conf['classification'] == 'fbs']
-filtered_conferences = sorted(filtered_conferences, key=lambda x: x['short_name'])
-
-# Sidebar for conference selection
-conf_names = [conf['short_name'] for conf in filtered_conferences]
-selected_conf_name = st.sidebar.selectbox("Select Conference", conf_names)
-selected_conf = next((conf for conf in filtered_conferences if conf['short_name'] == selected_conf_name), None)
-
-# Display the selected conference's games
-if selected_conf:
-    conf_abbrev = selected_conf['abbreviation']
-    st.markdown(f"### {selected_conf['short_name']} Games")
-    display_scoreboard()
+st.markdown(f"### Current Games")
+display_scoreboard()

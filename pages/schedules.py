@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import requests
 
+
 YEAR = 2024
 
 def team_information():
