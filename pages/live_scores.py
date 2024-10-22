@@ -106,9 +106,6 @@ def display_team_info(team_logo, team_name, team_score, possession_icon):
 def display_scoreboard():
     # Loop through each game and generate the scoreboard
     games_df = create_scoreboard()
-    if games_df.empty:
-        st.markdown("No games currently underway.")
-        return
     games_with_logos = add_logos(games_df)
 
     for index, game in games_with_logos.iterrows():
