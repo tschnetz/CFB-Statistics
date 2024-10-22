@@ -36,6 +36,30 @@ def get_games():
     games = pd.DataFrame(response.json())
     return games
 
+def get_records(year):
+    url = f'https://api.collegefootballdata.com/records?year={year}'
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f"Failed to fetch data. Status code: {response.status_code}")
+
+
+def create_records(valid_records):
+    if not valid_records:
+        return pd.DataFrame()
+    team_records_list = []
+    for record in valid_records:
+        team_record = {
+            'team': record['team'],  # Include teamId for merging
+            'Total Wins': record['total'].get('wins', 0),
+            'Total Losses': record['total'].get('losses', 0),
+            'Conference Wins': record['conferenceGames'].get('wins', 0),
+            'Conference Losses': record['conferenceGames'].get('losses', 0),
+        }
+        team_records_list.append(team_record)
+    return pd.DataFrame(team_records_list)
+
 
 def select_week():
     weeks_df = get_schedule()
@@ -108,7 +132,9 @@ def get_media():
             'id': game['id'],
             'outlet': game['outlet'],
         })
+    # If media has games with duplicate id, concatenate the outlets in one and remove the duplicate
     media_df = pd.DataFrame(media)
+    media_df = media_df.groupby('id')['outlet'].apply(', '.join).reset_index()
     return media_df
 
 
@@ -124,9 +150,9 @@ def add_logos():
     return games_with_logos
 
 
-def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, weekday,
-                     spread, outlet):
-    # Check if home_score and away_score are NaN and handle accordingly
+def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, weekday, spread, outlet,
+                     home_total_wins, home_total_losses, home_conf_wins, home_conf_losses,
+                     away_total_wins, away_total_losses, away_conf_wins, away_conf_losses):
     home_score_display = int(home_score) if not pd.isna(home_score) else ""  # Blank if NaN
     away_score_display = int(away_score) if not pd.isna(away_score) else ""  # Blank if NaN
 
@@ -137,12 +163,14 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
         <div style="text-align: center;">
             <img src="{away_team_logo}" width="50"><br>
             <b>{away_team}</b><br>
+            <span style="font-size: 18px;">{away_total_wins}-{away_total_losses}, {away_conf_wins}-{away_conf_losses}</span><br>
             <span style="font-size: 30px; font-weight: bold;">{away_score_display}</span>  <!-- Larger score -->
         </div>
         <div style="text-align: center; font-size: 18px;">at</div>
         <div style="text-align: center;">
             <img src="{home_team_logo}" width="50"><br>
             <b>{home_team}</b><br>
+            <span style="font-size: 18px;">{home_total_wins}-{home_total_losses}, {home_conf_wins}-{home_conf_losses}</span><br>
             <span style="font-size: 30px; font-weight: bold;">{home_score_display}</span>  <!-- Larger score -->
         </div>
         <div style="text-align: center; font-size: 14px; margin-top: 5px;">
@@ -157,21 +185,30 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
 week = select_week()
 games_df = get_games()
 schedule = clean_games(games_df)
+records = create_records(get_records(YEAR))
 games_with_logos = add_logos()
 betting_df = get_lines()
 media_df = get_media()
 games_with_betting = games_with_logos.merge(betting_df, on='id', how='left')
 games_with_media = games_with_betting.merge(media_df, on='id', how='left')
+# Merge home team records based on team name
+games_with_records = games_with_media.merge(records, left_on='home_team', right_on='team', how='left', suffixes=('', '_home'))
+# Merge away team records based on team name
+games_with_records = games_with_records.merge(records, left_on='away_team', right_on='team', how='left', suffixes=('', '_away'))
 st.header(f"Week {week} CFB Schedule", divider='blue')
-for index, row in games_with_media.iterrows():
-    st.markdown(display_schedule(row['home_team'],
-                                 row['home_team_logo'],
-                                 row['home_points'],
-                                 row['away_team'],
-                                 row['away_team_logo'],
-                                 row['away_points'],
-                                 row['start_date'],
-                                 row['day_of_week'],
-                                 row['spread'],
-                                 row['outlet']),
-                unsafe_allow_html=True)
+for index, row in games_with_records.iterrows():
+    st.markdown(display_schedule(
+        row['home_team'],  # Home team name
+        row['home_team_logo'],  # Home team logo
+        row['home_points'],  # Home team score
+        row['away_team'],  # Away team name
+        row['away_team_logo'],  # Away team logo
+        row['away_points'],  # Away team score
+        row['start_date'],  # Game date
+        row['day_of_week'],  # Day of the week
+        row['spread'],  # Spread
+        row['outlet'],  # Media outlet
+        row['Total Wins'], row['Total Losses'], row['Conference Wins'], row['Conference Losses'],  # Home team records
+        row['Total Wins_away'], row['Total Losses_away'], row['Conference Wins_away'], row['Conference Losses_away']
+        # Away team records
+    ), unsafe_allow_html=True)

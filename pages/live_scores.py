@@ -120,13 +120,13 @@ def display_scoreboard():
                             width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
 
                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <div style="display: flex; align-items: center; margin-bottom:   
- 5px;">
-                            {"🏈" if game['possession'] == 'away' else ""} 
+                        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+    
                             <img src='{game['away_team_logo']}' width='50' style='margin-left: 10px;'>
+                            {" 🏈" if game['possession'] == 'away' else ""} 
                         </div>
                         <div style="font-size: 16px; font-weight: bold; margin-top: 0; overflow: hidden;
-                                    text-overflow: ellipsis; white-space: nowrap; max-width: 130px;">{game['away_team']}</div>
+                                    text-overflow: ellipsis; white-space: nowrap; max-width: 250px;">{game['away_team']}</div>
                         <div style="font-size: 24px; font-weight: bold; margin-top: 0;">{int(game['away_team_score'])}</div>
                     </div>
 
@@ -137,13 +137,12 @@ def display_scoreboard():
                     </div>
 
                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;"> 
-                        <div style="display: flex; align-items: center; margin-bottom:   
- 5px;">
-                            {"🏈" if game['possession'] == 'home' else ""} 
+                        <div style="display: flex; align-items: center; margin-bottom: 5px;">
                             <img src='{game['home_team_logo']}' width='50' style='margin-left: 10px;'>
+                            {" 🏈" if game['possession'] == 'home' else ""} 
                         </div>
                         <div style="font-size: 16px; font-weight: bold; margin-top: 0; overflow: hidden;
-                                    text-overflow: ellipsis; white-space: nowrap; max-width: 130px;">{game['home_team']}</div>
+                                    text-overflow: ellipsis; white-space: nowrap; max-width: 250px;">{game['home_team']}</div>
                         <div style="font-size: 24px; font-weight: bold; margin-top: 0;">{int(game['home_team_score'])}</div>
                     </div>
                 </div>
