@@ -169,19 +169,19 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
         <div style="text-align: center; font-size: 16px;">{weekday}<br>{game_date}</div>
         <div style="text-align: center;">
             <img src="{away_team_logo}" width="50"><br>
-            <b>{away_team}</b><br>
+            <span style="font-size: 20px;"><b>{away_team}</b></span><br>
             <span style="font-size: 18px;">{away_total_wins}-{away_total_losses}, {away_conf_wins}-{away_conf_losses}</span><br>
             <span style="font-size: 30px; font-weight: bold;">{away_score_display}</span>  <!-- Larger score -->
         </div>
         <div style="text-align: center; font-size: 18px;">at</div>
         <div style="text-align: center;">
             <img src="{home_team_logo}" width="50"><br>
-            <b>{home_team}</b><br>
+            <span style="font-size: 20px;"><b>{home_team}</b></span><br>
             <span style="font-size: 18px;">{home_total_wins}-{home_total_losses}, {home_conf_wins}-{home_conf_losses}</span><br>
             <span style="font-size: 30px; font-weight: bold;">{home_score_display}</span>  <!-- Larger score -->
         </div>
         <div style="text-align: center; font-size: 14px; margin-top: 5px;">
-            {spread}<br>{over_under} O/U<br>a:{away_moneyline} h: {home_moneyline} <br>{outlet}
+            <b>{spread}</b><br>{over_under} O/U<br>a:{away_moneyline} h: {home_moneyline} <br>{outlet}
         </div>
     </div>
     <hr>
