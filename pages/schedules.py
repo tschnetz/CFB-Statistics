@@ -144,6 +144,9 @@ def get_media():
 
 def add_logos():
     logos_df = team_information()
+    # Drop faulty Charlotte logo
+    logos_df = logos_df[logos_df['logos'] != 'http://a.espncdn.com/i/teamlogos/ncaa/500/3253.png']
+
     # Merge logos for the home team
     games_with_logos = games_df.merge(logos_df, left_on='home_team', right_on='school', how='left')
     games_with_logos = games_with_logos.rename(columns={'logos': 'home_team_logo'}).drop('school', axis=1)
