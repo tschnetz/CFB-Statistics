@@ -119,7 +119,7 @@ def display_scoreboard():
                             border-radius: 20px; padding: 20px; margin-bottom: 20px; font-family: 'Verdana', sans-serif;
                             display: flex; justify-content: space-between; align-items: center; 
                             text-align: center;
-                            width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
+                            width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
 
                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                         <div style="display: flex; align-items: center; margin-bottom: 5px;">
