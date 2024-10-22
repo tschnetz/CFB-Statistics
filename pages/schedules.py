@@ -36,6 +36,7 @@ def get_games():
     games = pd.DataFrame(response.json())
     return games
 
+
 def get_records(year):
     url = f'https://api.collegefootballdata.com/records?year={year}'
     response = requests.get(url, headers=headers)
@@ -114,7 +115,10 @@ def get_lines():
         if espn_line:
             betting_lines.append({
                 'id': game['id'],
-                'spread': espn_line['formattedSpread']
+                'spread': espn_line['formattedSpread'],
+                'over_under': espn_line['overUnder'],
+                'home_moneyline': espn_line['homeMoneyline'],
+                'away_moneyline': espn_line['awayMoneyline'],
             })
     game_lines = pd.DataFrame(betting_lines)
     return game_lines
@@ -150,7 +154,8 @@ def add_logos():
     return games_with_logos
 
 
-def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, weekday, spread, outlet,
+def display_schedule(home_team, home_team_logo, home_score, away_team, away_team_logo, away_score, game_date, weekday,
+                     spread, over_under, home_moneyline, away_moneyline, outlet,
                      home_total_wins, home_total_losses, home_conf_wins, home_conf_losses,
                      away_total_wins, away_total_losses, away_conf_wins, away_conf_losses):
     home_score_display = int(home_score) if not pd.isna(home_score) else ""  # Blank if NaN
@@ -159,7 +164,6 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
     return f"""
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div style="text-align: center; font-size: 16px;">{weekday}<br>{game_date}</div>
-        <div style="text-align: center; font-size: 18px;">at</div>
         <div style="text-align: center;">
             <img src="{away_team_logo}" width="50"><br>
             <b>{away_team}</b><br>
@@ -174,7 +178,7 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
             <span style="font-size: 30px; font-weight: bold;">{home_score_display}</span>  <!-- Larger score -->
         </div>
         <div style="text-align: center; font-size: 14px; margin-top: 5px;">
-            {spread}<br>{outlet}
+            {spread}<br>{over_under} O/U<br>a:{away_moneyline} h: {home_moneyline} <br>{outlet}
         </div>
     </div>
     <hr>
@@ -185,16 +189,19 @@ def display_schedule(home_team, home_team_logo, home_score, away_team, away_team
 week = select_week()
 games_df = get_games()
 schedule = clean_games(games_df)
-records = create_records(get_records(YEAR))
-games_with_logos = add_logos()
-betting_df = get_lines()
-media_df = get_media()
+
+games_with_logos = add_logos() # Add team logos
+
+betting_df = get_lines() # Add betting info
 games_with_betting = games_with_logos.merge(betting_df, on='id', how='left')
+
+media_df = get_media() # Add media outlet
 games_with_media = games_with_betting.merge(media_df, on='id', how='left')
-# Merge home team records based on team name
+
+records = create_records(get_records(YEAR)) # Add team records
 games_with_records = games_with_media.merge(records, left_on='home_team', right_on='team', how='left', suffixes=('', '_home'))
-# Merge away team records based on team name
 games_with_records = games_with_records.merge(records, left_on='away_team', right_on='team', how='left', suffixes=('', '_away'))
+
 st.header(f"Week {week} CFB Schedule", divider='blue')
 for index, row in games_with_records.iterrows():
     st.markdown(display_schedule(
@@ -207,8 +214,10 @@ for index, row in games_with_records.iterrows():
         row['start_date'],  # Game date
         row['day_of_week'],  # Day of the week
         row['spread'],  # Spread
+        row['over_under'],  # Over/Under
+        row['home_moneyline'],  # Home team moneyline
+        row['away_moneyline'],  # Away team moneyline
         row['outlet'],  # Media outlet
         row['Total Wins'], row['Total Losses'], row['Conference Wins'], row['Conference Losses'],  # Home team records
-        row['Total Wins_away'], row['Total Losses_away'], row['Conference Wins_away'], row['Conference Losses_away']
-        # Away team records
+        row['Total Wins_away'], row['Total Losses_away'], row['Conference Wins_away'], row['Conference Losses_away'], # Away team records
     ), unsafe_allow_html=True)
