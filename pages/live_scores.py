@@ -61,10 +61,12 @@ def create_scoreboard():
             'status': game['status'],
             'period': game['period'],
             'clock': game['clock'],
+            'tv': game['tv'],
             'situation': game['situation'],
             'possession': game['possession'],
             'home_team_score': game['homeTeam']['points'],
             'away_team_score': game['awayTeam']['points'],
+            'spread': game['betting']['spread'],
         }
         for game in scoreboard
     ]
@@ -133,7 +135,9 @@ def display_scoreboard():
                     <div style="flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center;">
                         <h4 style="font-family: 'Verdana', sans-serif; margin: 0;">{int(game['period'])}Q</h4>
                         <p style="margin: 0;">{format_clock(game['clock'])}</p>
+                        <p style="margin: 0; font-size: 12px"><i>{f"{game['tv']} ▪️ {game['spread']}"}</i></p><br>
                         <p style="margin: 0;">{game['situation'] or "No situation available"}</p>
+                        
                     </div>
 
                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;"> 
@@ -155,5 +159,5 @@ def display_scoreboard():
         unsafe_allow_html=True)
 
 
-st.markdown(f"### Current Games")
+st.markdown(f"### Games in Progress")
 display_scoreboard()
