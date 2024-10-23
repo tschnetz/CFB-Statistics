@@ -13,7 +13,7 @@ def team_information():
     with open('team_info.json', 'r') as file:
         data_dict = json.load(file)
     colors_logos_df = pd.DataFrame(data_dict)
-    colors_logos_df = colors_logos_df[['school', 'logos', 'color']]  # Add color here
+    colors_logos_df = colors_logos_df[['school', 'logos', 'color', 'mascot']]  # Add color here
     # drop rows with logos = None
     colors_logos_df = colors_logos_df[colors_logos_df['logos'].notna()]
     colors_logos_df['logos'] = colors_logos_df['logos'].apply(lambda x: x[0] if isinstance(x, list) else x)
@@ -25,8 +25,38 @@ def get_team_logo_color(team_name, team_info_df):
     if not team_data.empty:
         logo = team_data.iloc[0]['logos']
         color = team_data.iloc[0]['color']
-        return logo, color
-    return None, "#000000"  # Default to black if not found
+        if team_data.iloc[0]['mascot']:
+            mascot = team_data.iloc[0]['mascot']
+        else:
+            mascot = "  "
+        return logo, color, mascot
+    return None, "#000000", " "  # Default to black if not found
+
+
+def get_records(year):
+    url = f'https://api.collegefootballdata.com/records?year={year}'
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f"Failed to fetch data. Status code: {response.status_code}")
+
+
+def create_records(valid_records):
+    if not valid_records:
+        return pd.DataFrame()
+    team_records_list = []
+    for record in valid_records:
+        team_record = {
+            'team': record['team'],
+            'Total Wins': record['total'].get('wins', 0),
+            'Total Losses': record['total'].get('losses', 0),
+            'Conference Wins': record['conferenceGames'].get('wins', 0),
+            'Conference Losses': record['conferenceGames'].get('losses', 0),
+        }
+        team_records_list.append(team_record)
+    return pd.DataFrame(team_records_list)
+
 
 def get_schedule():
     url = "https://api.collegefootballdata.com/calendar"
@@ -104,24 +134,35 @@ def display_poll(poll_data, team_info_df):
 
     # Add a row for each team
     for team in poll_data['ranks']:
-        logo, color = get_team_logo_color(team['school'], team_info_df)
+        logo, color, mascot = get_team_logo_color(team['school'], team_info_df)
+
+        # Filter the records DataFrame to get the corresponding team record
+        team_record = records[records['team'] == team['school']]
+        if not team_record.empty:
+            wins = team_record.iloc[0]['Total Wins']
+            losses = team_record.iloc[0]['Total Losses']
+        else:
+            wins = "N/A"
+            losses = "N/A"
+
         first_place_votes = team.get('firstPlaceVotes', 0)
         conference = team['conference']
         points = team['points']
 
-        # Add each row with team info
+        # Add each row with team info, including records
         html += f"""
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{team['rank']}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; display: flex; align-items: center;">
-                        <img src="{logo}" width="30" height="30" style="margin-right: 10px;">
-                        <span style="color: {color}; font-weight: bold; font-size: 20px;">{team['school']}</span>
-                    </td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{conference}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{first_place_votes}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{points}</td>
-                </tr>
-                """
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;"><b>{team['rank']}</b></td>
+                        <td style="padding: 8px; border: 1px solid #ddd; display: flex; align-items: center;">
+                            <img src="{logo}" width="30" height="30" style="margin-right: 10px;">
+                            <span style="color: {color}; font-weight: bold; font-size: 20px;">{team['school']} {mascot}</span>
+                            <span style="margin-left: 10px;">({wins} - {losses})</span>  <!-- Use <span> instead of <p> -->
+                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{conference}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{first_place_votes}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{points:,}</td>
+                    </tr>
+                    """
 
     # Close the table
     html += """
@@ -137,6 +178,7 @@ def display_poll(poll_data, team_info_df):
 week = select_week()
 team_info_df = team_information()
 polls = get_polls(week)  # Pass the selected week to the get_polls function
+records = create_records(get_records(YEAR))
 
 # Separate the AP and Coaches polls from the rest
 ap_poll = None
