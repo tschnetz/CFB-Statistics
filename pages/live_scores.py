@@ -1,12 +1,15 @@
 import json
 import streamlit as st
-import streamlit.components.v1
 import pandas as pd
 import requests
 import time
 from config_api import headers
 
-
+st.set_page_config(
+    page_title="CFB Data",
+    page_icon=":football:",
+    layout="wide",
+)
 
 # Helper function to make HTTP requests and handle errors
 def fetch_data_from_api(url, query_params=None):
@@ -25,6 +28,7 @@ def get_scoreboard():
     return fetch_data_from_api(url, query_params=querystring)
 
 
+@st.cache_data
 def team_information():
     with open('team_info.json', 'r') as file:
         data_dict = json.load(file)
@@ -36,6 +40,7 @@ def team_information():
     return colors_logos_df
 
 
+@st.cache_data
 def add_logos(games_df):
     logos_df = team_information()
     # Merge logos and colors for the home team
@@ -49,6 +54,7 @@ def add_logos(games_df):
         'id', axis=1)
 
     return games_with_logos
+
 
 def create_scoreboard():
     scoreboard = get_scoreboard()
@@ -73,47 +79,21 @@ def create_scoreboard():
     return pd.DataFrame(games_list)
 
 
-# Helper function to format clock display
-def format_clock(clock):
-    if clock is None:
-        return "00:00"
-
-    parts = clock.split(":")
-    if len(parts) == 3:  # If clock has hours, minutes, and seconds
-        return f"{parts[1]}:{parts[2]}"  # Return only minutes and seconds
-    elif len(parts) == 2:  # Already in minutes and seconds
-        return clock
-    else:
-        return "00:00"  # Default value
-
-
-# Helper function to display team info (DRY principle)
-def display_team_info(team_logo, team_name, team_score, possession_icon):
-    st.markdown(f"""
-        <div style='text-align: center;'>
-            <div style="display: inline-flex; align-items: center; justify-content: center;">
-                {possession_icon} <img src='{team_logo}' width='50' style='margin-left: 5px;'>
-            </div>
-            <br>
-            <b>{team_name}</b><br>
-            <h2 style='font-weight: bold;'>{int(team_score)}</h2>
-        </div>
-    """, unsafe_allow_html=True)
-
-
 # Main scoreboard display function
-@st.fragment(run_every="60s")
+@st.fragment(run_every="20s")
 def display_scoreboard():
-    # Loop through each game and generate the scoreboard
+    # Fetch and process the scoreboard data
     games_df = create_scoreboard()
     games_with_logos = add_logos(games_df)
 
+    # Only add the header once, not multiple times
+    st.markdown(f"### Games in Progress")
+
     for index, game in games_with_logos.iterrows():
         if game['status'] == 'in_progress':  # Only display in-progress or finished games
-            away_color = game['away_team_color'] or "#ffffff"  # Default to white if no color
-            home_color = game['home_team_color'] or "#ffffff"  # Default to white if no color
+            away_color = game['away_team_color'] or "#ffffff"
+            home_color = game['home_team_color'] or "#ffffff"
 
-            # Apply a consistent gradient background for the whole game block
             st.components.v1.html(f"""
                 <div style="background: linear-gradient(to right, {away_color}50, {home_color}50);
                             border-radius: 20px; padding: 20px; margin-bottom: 20px; font-family: 'Verdana', sans-serif;
@@ -123,21 +103,19 @@ def display_scoreboard():
 
                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                         <div style="display: flex; align-items: center; margin-bottom: 5px;">
-    
                             <img src='{game['away_team_logo']}' width='50' style='margin-left: 10px;'>
                             {" 🏈" if game['possession'] == 'away' else ""} 
                         </div>
-                        <div style="font-size: 16px; font-weight: bold; margin-top: 0; overflow: hidden;
+                        <div style="font-size: 14px; font-weight: bold; margin-top: 0; overflow: hidden;
                                     text-overflow: ellipsis; white-space: nowrap; max-width: 250px;">{game['away_team']}</div>
                         <div style="font-size: 24px; font-weight: bold; margin-top: 0;">{int(game['away_team_score'])}</div>
                     </div>
 
                     <div style="flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center;">
                         <h4 style="font-family: 'Verdana', sans-serif; margin: 0;">{int(game['period'])}Q</h4>
-                        <p style="margin: 0;">{format_clock(game['clock'])}</p>
+                        <p style="margin: 0;">{game['clock']}</p>
                         <p style="margin: 0; font-size: 12px"><i>{f"{game['tv']} ▪️ {game['spread']}"}</i></p><br>
                         <p style="margin: 0;">{game['situation'] or "No situation available"}</p>
-                        
                     </div>
 
                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;"> 
@@ -145,7 +123,7 @@ def display_scoreboard():
                             <img src='{game['home_team_logo']}' width='50' style='margin-left: 10px;'>
                             {" 🏈" if game['possession'] == 'home' else ""} 
                         </div>
-                        <div style="font-size: 16px; font-weight: bold; margin-top: 0; overflow: hidden;
+                        <div style="font-size: 14px; font-weight: bold; margin-top: 0; overflow: hidden;
                                     text-overflow: ellipsis; white-space: nowrap; max-width: 250px;">{game['home_team']}</div>
                         <div style="font-size: 24px; font-weight: bold; margin-top: 0;">{int(game['home_team_score'])}</div>
                     </div>
@@ -153,11 +131,12 @@ def display_scoreboard():
             """)
 
     # Display the last updated time with Verdana font applied
-    last_updated = time.strftime("%I:%M %p")  # e.g., "03:45 PM"
+    last_updated = time.strftime("%I:%M:%S %p")  # e.g., "03:45 PM"
     st.markdown(
         f"<div style='text-align: center; font-size: 12px; color: #888;'><i>Last updated: {last_updated}</i></div>",
-        unsafe_allow_html=True)
+        unsafe_allow_html=True
+    )
 
 
-st.markdown(f"### Games in Progress")
+# Call the display scoreboard function
 display_scoreboard()
