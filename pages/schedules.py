@@ -194,12 +194,18 @@ games_df = get_games()
 schedule = clean_games(games_df)
 
 games_with_logos = add_logos() # Add team logos
+media_df = get_media() # Add media outlet
 
 betting_df = get_lines() # Add betting info
-games_with_betting = games_with_logos.merge(betting_df, on='id', how='left')
-
-media_df = get_media() # Add media outlet
-games_with_media = games_with_betting.merge(media_df, on='id', how='left')
+if not betting_df.empty:
+    games_with_betting = games_with_logos.merge(betting_df, on='id', how='left')
+    games_with_media = games_with_betting.merge(media_df, on='id', how='left')
+else:
+    games_with_media = games_with_logos.merge(media_df, on='id', how='left')
+    games_with_media['spread'] = 'N/A'
+    games_with_media['over_under'] = 'N/A'
+    games_with_media['home_moneyline'] = 'N/A'
+    games_with_media['away_moneyline'] = 'N/A'
 
 records = create_records(get_records(YEAR)) # Add team records
 games_with_records = games_with_media.merge(records, left_on='home_team', right_on='team', how='left', suffixes=('', '_home'))

@@ -1,9 +1,10 @@
 import json
+from datetime import datetime
 import streamlit as st
 import pandas as pd
 import requests
-import time
 from config_api import headers
+from pytz import timezone
 
 st.set_page_config(
     page_title="CFB Data",
@@ -28,7 +29,6 @@ def get_scoreboard():
     return fetch_data_from_api(url, query_params=querystring)
 
 
-@st.cache_data
 def team_information():
     with open('team_info.json', 'r') as file:
         data_dict = json.load(file)
@@ -37,10 +37,11 @@ def team_information():
     colors_logos_df = colors_logos_df[colors_logos_df['logos'].notna() & colors_logos_df['color'].notna()]
     # Handle lists of logos
     colors_logos_df['logos'] = colors_logos_df['logos'].apply(lambda x: x[0] if isinstance(x, list) else x)
+    # Update URLs to use https
+    colors_logos_df['logos'] = colors_logos_df['logos'].str.replace('http://', 'https://')
     return colors_logos_df
 
 
-@st.cache_data
 def add_logos(games_df):
     logos_df = team_information()
     # Merge logos and colors for the home team
@@ -80,7 +81,7 @@ def create_scoreboard():
 
 
 # Main scoreboard display function
-@st.fragment(run_every="20s")
+@st.fragment(run_every="15s")
 def display_scoreboard():
     # Fetch and process the scoreboard data
     games_df = create_scoreboard()
@@ -131,7 +132,10 @@ def display_scoreboard():
             """)
 
     # Display the last updated time with Verdana font applied
-    last_updated = time.strftime("%I:%M:%S %p")  # e.g., "03:45 PM"
+    edt = timezone('US/Eastern')
+    # Accurate timezone handling
+    now = datetime.now(edt)
+    last_updated = now.strftime("%I:%M:%S %p")
     st.markdown(
         f"<div style='text-align: center; font-size: 12px; color: #888;'><i>Last updated: {last_updated}</i></div>",
         unsafe_allow_html=True
