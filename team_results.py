@@ -54,6 +54,7 @@ def team_information():
             # set team_color = color for school = team
             team_color = team_df[team_df['school'] == team]['color'].values[0]
             team_logo = team_df[team_df['school'] == team]['logos'].values[0][0]
+            team_logo = team_logo.replace('http://', 'https://')
             team_mascot = team_df[team_df['school'] == team]['mascot'].values[0]
             team_conference = team_df[team_df['school'] == team]['conference'].values[0]
             return team_color, team_logo, team_mascot, team_conference

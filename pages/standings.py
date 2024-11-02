@@ -29,6 +29,8 @@ def team_information():
     # drop rows with logos = None
     colors_logos_df = colors_logos_df[colors_logos_df['logos'].notna()]
     colors_logos_df['logos'] = colors_logos_df['logos'].apply(lambda x: x[0] if isinstance(x, list) else x)
+    colors_logos_df['logos'] = colors_logos_df['logos'].str.replace('http://', 'https://')
+
     return colors_logos_df
 
 
