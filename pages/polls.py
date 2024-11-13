@@ -183,10 +183,13 @@ records = create_records(get_records(YEAR))
 # Separate the AP and Coaches polls from the rest
 ap_poll = None
 coaches_poll = None
+playoff_rankings = None
 other_polls = []
 
 for poll in polls[0]['polls']:
-    if poll['poll'] == "AP Top 25":
+    if poll['poll'] == "Playoff Committee Rankings":
+        playoff_rankings = poll
+    elif poll['poll'] == "AP Top 25":
         ap_poll = poll
     elif poll['poll'] == "Coaches Poll":
         coaches_poll = poll
@@ -194,6 +197,9 @@ for poll in polls[0]['polls']:
         other_polls.append(poll)
 
 # Display the AP poll first, followed by the Coaches poll, then the rest
+if playoff_rankings:
+    display_poll(playoff_rankings, team_info_df)
+
 if ap_poll:
     display_poll(ap_poll, team_info_df)
 
